@@ -6,29 +6,32 @@ export default function (opt={}) ::
   const udp_src = createSocket('udp4')
 
   return @{}
-    name: 'build-relay'
+    name: 'dgram-notify'
     buildEnd(err) ::
-      const o_pkt = @{}
+      const obj = @{}
         id: opt.id || _build_id_for(this)
         err
 
       if err ::
         if opt.on_error ::
-          if false === opt.on_error(err, o_pkt) ::
+          if false === opt.on_error(err, obj) ::
             return
 
       else if opt.on_build ::
-        if false === opt.on_build(o_pkt) ::
+        if false === opt.on_build(obj) ::
           return
 
-      const j_pkt = JSON.stringify @ o_pkt
-      const b_pkt = Buffer.from @ j_pkt
+      if opt.echo ::
+        if true === opt.echo ::
+          console.log @ '[rollup build dgram]:', obj
+        else opt.echo @ obj
 
-      udp_src.send @ b_pkt,
-        opt.port || 8099,
-        opt.host || '127.0.0.1',
+      udp_src.send @
+        Buffer.from @
+          JSON.stringify(obj)
 
-      console.log @ JSON.stringify @ o_pkt, null, 2
+        opt.port || 8099
+        opt.host || '127.0.0.1'
 
 
   function _build_id_for(ctx) ::

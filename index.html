@@ -3,7 +3,7 @@
 <head>
   <meta charset='utf-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <title>Build Relay (Rollup Plugin)</title>
+  <title>Datagram Notify Rollup Plugin</title>
 
   <link rel='icon' href='data:image/png;base64,' />
   <link rel='stylesheet' crossorigin='anonymous' href='https://cdn.jsdelivr.net/npm/picnic@6.5.1/picnic.min.css' />
@@ -19,7 +19,7 @@
 
 <body>
   <main>
-    <h1>Build Relay (Rollup Plugin)</h1>
+    <h1>Datagram Notify Rollup Plugin</h1>
 
     <section id='app'>
     </section>
@@ -48,18 +48,28 @@
     }
 
     {
-      const es = new EventSource('/dg_relay?8099')
       const dg_relay_info = new Map()
-      es.onmessage = evt => {
-        const msg = JSON.parse(evt.data)
-        if (msg.err) {
-          sayit(`New error at ${msg.id.cwd}`)
-        }
-        dg_relay_info.set(msg.id.cwd, msg)
-        refresh_info(dg_relay_info)
+      refresh_info(dg_relay_info)
+
+      for (const es_host of ['//127.0.0.1:8080']) {
+        const es = new EventSource(`${es_host}/dg_relay?8099`)
+        es.onmessage = on_dg_msg
       }
 
-      refresh_info(dg_relay_info)
+      function on_dg_msg(evt) {
+        const msg = JSON.parse(evt.data)
+        msg.ts = new Date()
+        dg_relay_info.set(msg.id.cwd, msg)
+        refresh_info(dg_relay_info)
+
+        if (msg.err) {
+          try {
+            sayit(`New error at ${msg.id.cwd}`)
+          } catch (err) {
+            console.error(err)
+          }
+        }
+      }
     }
 
 
@@ -78,9 +88,8 @@
     }
 
     function _render_dg_article(msg) {
-      const ts = new Date(msg.id.ts)
       return h('li', {className: `dg ${msg.err ? 'dg_error' : 'dg_good'}`},
-        h('time', {datetime: ts.toISOString()}, `[${ts.toLocaleTimeString()}]`),
+        h('time', {datetime: msg.ts.toISOString()}, `[${msg.ts.toLocaleTimeString()}]`),
         h('b', {}, `${msg.id.cwd}`),
         msg.err && _render_dg_err(msg.err, msg)
       )

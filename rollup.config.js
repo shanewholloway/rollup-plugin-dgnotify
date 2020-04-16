@@ -1,15 +1,11 @@
 import rpi_jsy from 'rollup-plugin-jsy'
-import rpi_resolve from 'rollup-plugin-jsy'
 
 const configs = []
 export default configs
 
 const sourcemap = true
 const external = ['dgram', 'path']
-const plugins = [rpi_jsy(), rpi_resolve()]
-
-//import rpi_test from './esm/index.mjs'
-//plugins.push(rpi_test())
+const plugins = [rpi_jsy()]
 
 add_jsy('index')
 
