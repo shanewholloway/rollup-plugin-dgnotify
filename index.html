@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>Build Relay (Rollup Plugin)</title>
+
+  <link rel='icon' href='data:image/png;base64,' />
+  <link rel='stylesheet' crossorigin='anonymous' href='https://cdn.jsdelivr.net/npm/picnic@6.5.1/picnic.min.css' />
+  <style>
+    body { margin: 2em 2em; }
+    .dg_good { color: green; }
+    .dg_error { color: red; }
+    .dg>time { margin-right: 1em; }
+  </style>
+
+  <script crossorigin='anonymous' src='https://cdn.jsdelivr.net/npm/superfine@7.0.0/dist/superfine.min.js'></script>
+</head>
+
+<body>
+  <main>
+    <h1>Build Relay (Rollup Plugin)</h1>
+
+    <section id='app'>
+    </section>
+  </main>
+
+  <script type=module>
+    window.addEventListener('qsrv', evt => evt.preventDefault())
+
+    function sayit(msg, force) {
+      if (force || ! speechSynthesis.speaking)
+        speechSynthesis.speak(
+          new SpeechSynthesisUtterance(msg))
+    }
+
+    document.querySelector('body>main>h1')
+      .addEventListener('click', ()=> sayit(`Speech notifications ready`) )
+
+    let _p_refresh
+    function refresh_info(info) {
+      if (undefined !== _p_refresh)
+        return _p_refresh
+
+      return _p_refresh = Promise.resolve(info)
+        .then(refresh_app)
+        .finally(() => {_p_refresh = undefined})
+    }
+
+    {
+      const es = new EventSource('/dg_relay?8099')
+      const dg_relay_info = new Map()
+      es.onmessage = evt => {
+        const msg = JSON.parse(evt.data)
+        if (msg.err) {
+          sayit(`New error at ${msg.id.cwd}`)
+        }
+        dg_relay_info.set(msg.id.cwd, msg)
+        refresh_info(dg_relay_info)
+      }
+
+      refresh_info(dg_relay_info)
+    }
+
+
+    const {h} = superfine
+    const bind_render_on = node => view => node = superfine.patch(node, view)
+    const render_app = bind_render_on(document.getElementById('app'))
+
+    //render_app(h('h1', {}, 'Hello from JSY and Parcel!'))
+
+    function refresh_app(dg_relay_info) {
+      const parts = []
+      for (const msg of dg_relay_info.values()) {
+        parts.push(_render_dg_article(msg))
+      }
+      render_app(h('section', {}, parts))
+    }
+
+    function _render_dg_article(msg) {
+      const ts = new Date(msg.id.ts)
+      return h('li', {className: `dg ${msg.err ? 'dg_error' : 'dg_good'}`},
+        h('time', {datetime: ts.toISOString()}, `[${ts.toLocaleTimeString()}]`),
+        h('b', {}, `${msg.id.cwd}`),
+        msg.err && _render_dg_err(msg.err, msg)
+      )
+    }
+
+    function _render_dg_err(err) {
+      const by_err_key = {
+        _: v => JSON.stringify(v, null, 4),
+        frame: v => ['', ... v.trim().split('\n')].join('\n    '),
+      }
+
+      const sz_err = Object.entries(err)
+        .map(([k,v]) => `${k}: ${(by_err_key[k] || by_err_key._)(v)}`)
+        .join('\n')
+
+      return h('pre', {}, h('output', {}, sz_err))
+    }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+import {relative} from 'path'
+import {createSocket} from 'dgram'
+
+export default function (opt={}) ::
+  let _id_cache
+  const udp_src = createSocket('udp4')
+
+  return @{}
+    name: 'build-relay'
+    buildEnd(err) ::
+      const o_pkt = @{}
+        id: opt.id || _build_id_for(this)
+        err
+
+      if err ::
+        if opt.on_error ::
+          if false === opt.on_error(err, o_pkt) ::
+            return
+
+      else if opt.on_build ::
+        if false === opt.on_build(o_pkt) ::
+          return
+
+      const j_pkt = JSON.stringify @ o_pkt
+      const b_pkt = Buffer.from @ j_pkt
+
+      udp_src.send @ b_pkt,
+        opt.port || 8099,
+        opt.host || '127.0.0.1',
+
+      console.log @ JSON.stringify @ o_pkt, null, 2
+
+
+  function _build_id_for(ctx) ::
+    if undefined === _id_cache ::
+      const cwd = relative @
+        process.env.HOME
+        process.cwd()
+
+      _id_cache = @{} cwd
+
+    const res = @{}
+      ... _id_cache
+      ts: new Date().toISOString()
+
+    return res
+
