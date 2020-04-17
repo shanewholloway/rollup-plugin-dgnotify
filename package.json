@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-dgnotify",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Send rollup build notifications via datagram to a UDP port",
   "license": "MIT",
   "author": "Shane Holloway",

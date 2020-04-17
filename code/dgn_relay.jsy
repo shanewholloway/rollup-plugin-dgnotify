@@ -8,5 +8,5 @@ export default async function dgn_relay_main() ::
         http://127.0.0.1:8098/dg_relay?8099
 
       web watcher:
-        https://shanewholloway.github.io/rollup-plugin-dgnotify/?q=${Date.now()}
+        https://shanewholloway.github.io/rollup-plugin-dgnotify/index.html?q=${Date.now().toString(36)}
     `  
