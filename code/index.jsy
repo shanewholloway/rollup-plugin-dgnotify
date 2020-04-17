@@ -4,6 +4,7 @@ import {createSocket} from 'dgram'
 export default function (opt={}) ::
   let _id_cache
   const udp_src = createSocket('udp4')
+  udp_src.unref()
 
   return @{}
     name: 'dgram-notify'

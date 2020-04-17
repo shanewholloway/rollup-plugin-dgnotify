@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-dgnotify",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Send rollup build notifications via datagram to a UDP port",
   "license": "MIT",
   "author": "Shane Holloway",
@@ -18,8 +18,8 @@
     "code/",
     "esm/"
   ],
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
+  "main": "cjs/index.cjs",
+  "module": "esm/index.mjs",
   "dependencies": {},
   "devDependencies": {
     "qsrv": "^0.1.2",
@@ -29,7 +29,6 @@
   "scripts": {
     "start": "QSRV_TLS=$DEV_CERT_ROOT qsrv --dg 8099",
     "start_http": "qsrv --dg 8099",
-
     "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
