@@ -28,10 +28,32 @@
   <script type=module>
     window.addEventListener('qsrv', evt => evt.preventDefault())
 
-    function sayit(msg, force) {
-      if (force || ! speechSynthesis.speaking)
-        speechSynthesis.speak(
-          new SpeechSynthesisUtterance(msg))
+    let voice
+    window.init_voices = async function init_voices() {
+      for (let i=0; i<10; i++) {
+        const voices = speechSynthesis.getVoices()
+          .filter(voice => voice.lang.startsWith('en-'))
+          .sort((a,b) => a.name.localeCompare(b.name))
+
+        if (0 !== voices.length) {
+          voice = voices[location.port ? 0 : 1]
+          return voices
+        }
+        await new Promise(y => setTimeout(y,10))
+      }
+    }
+
+    window.sayit = async function sayit(msg, force) {
+      if (!force && speechSynthesis.speaking)
+        return console.log('(already speaking):', msg)
+
+      if (undefined === voice)
+        await init_voices()
+
+      console.log('(say):', msg)
+      const utter = new SpeechSynthesisUtterance(msg)
+      utter.voice = voice
+      speechSynthesis.speak(utter)
     }
 
     document.querySelector('body>main>h1')
