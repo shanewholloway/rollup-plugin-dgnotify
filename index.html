@@ -20,6 +20,9 @@
 <body>
   <main>
     <h1>Datagram Notify Rollup Plugin</h1>
+    <button id='enable_speech'>
+      Enable Speech Notifications
+    </button>
 
     <section id='app'>
     </section>
@@ -27,6 +30,12 @@
 
   <script type=module>
     window.addEventListener('qsrv', evt => evt.preventDefault())
+
+    document.querySelector('#enable_speech')
+      .addEventListener('click', evt=>{
+        sayit(`Speech notifications ready`) 
+        evt.target.parentNode.removeChild(evt.target)
+      })
 
     let voice
     window.init_voices = async function init_voices() {
@@ -55,9 +64,6 @@
       utter.voice = voice
       speechSynthesis.speak(utter)
     }
-
-    document.querySelector('body>main>h1')
-      .addEventListener('click', ()=> sayit(`Speech notifications ready`) )
 
     let _p_refresh
     function refresh_info(info) {

@@ -33,9 +33,9 @@ const dgnotify_options = {
 ```
 
 
-###### Connect to datagram relay
+###### Start datagram relay
 
-- `npx qsrv --dg 8099`
+- `npx rollup-plugin-dgnotify`
 - `curl [http://127.0.0.1:8080/dg_relay\?8099][lh_demo]`
 
 Or [visit the server-sent events][lh_demo] page in your browser
