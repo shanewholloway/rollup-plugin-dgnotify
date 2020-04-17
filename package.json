@@ -22,13 +22,14 @@
   "module": "esm/index.mjs",
   "dependencies": {},
   "devDependencies": {
-    "qsrv": "^0.1.2",
+    "qsdg": "0.0.2",
+    "qsrv": "^0.1.3",
     "rollup": "^2.6.1",
     "rollup-plugin-jsy": "^1.6.4"
   },
   "scripts": {
-    "start": "QSRV_TLS=$DEV_CERT_ROOT qsrv --dg 8099",
-    "start_http": "qsrv --dg 8099",
+    "start": "QSRV_TLS=$DEV_CERT_ROOT qsrv -p 8098 --dg 8099",
+    "start_http": "qsrv -p 8098 --dg 8099",
     "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
