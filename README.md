@@ -36,11 +36,11 @@ const dgnotify_options = {
 ###### Start datagram relay
 
 - `npx rollup-plugin-dgnotify`
-- `curl [http://127.0.0.1:8080/dg_relay\?8099][lh_demo]`
+- `curl http://127.0.0.1:8080/dg_relay\?8099`
 
 Or [visit the server-sent events][lh_demo] page in your browser
 
- [lh_demo]: http://127.0.0.1:8080/dg_relay\?8099
+ [lh_demo]: http://127.0.0.1:8080/dg_relay?8099
 
 
 ## License
