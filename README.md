@@ -7,17 +7,17 @@ Send [rollup][] build notifications via datagram to a UDP port.
 
 ## Use
 
-###### Install
+#### Install
 
 `npm install -D rollup-plugin-dgnotify`
 
 
-###### `rollup.config.js`
+#### In `rollup.config.js`
 
 ```javascript
 import rpi_dgnotify from 'rollup-plugin-dgnotify'
-
-plugins.push( rpi_dgnotify( /* options */ ))
+// ...
+plugins.push( rpi_dgnotify( /* dgnotify_options */ ))
 
 
 // all settings are optional
@@ -33,7 +33,7 @@ const dgnotify_options = {
 ```
 
 
-###### Start datagram relay
+#### Start datagram relay
 
 - `npx rollup-plugin-dgnotify`
 - `curl http://127.0.0.1:8080/dg_relay\?8099`
