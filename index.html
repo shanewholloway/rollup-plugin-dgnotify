@@ -73,7 +73,7 @@
       const dg_relay_info = new Map()
       refresh_info(dg_relay_info)
 
-      for (const es_host of ['//127.0.0.1:8098']) {
+      for (const es_host of ['http://127.0.0.1:8098']) {
         const es = new EventSource(`${es_host}/dg_relay?8099`)
         es.onmessage = on_dg_msg
       }
