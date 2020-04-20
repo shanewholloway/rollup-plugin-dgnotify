@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-dgnotify",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Send rollup build notifications via datagram to a UDP port",
   "license": "MIT",
   "author": "Shane Holloway",
@@ -24,8 +24,8 @@
   "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^7.1.3",
-    "qsdg": "0.0.2",
-    "qsrv": "^0.1.3",
+    "qsdg": "0.0.3",
+    "qsrv": "^0.1.4",
     "rollup": "^2.6.1",
     "rollup-plugin-jsy": "^1.6.4"
   },

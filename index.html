@@ -12,6 +12,9 @@
     .dg_good { color: green; }
     .dg_error { color: red; }
     .dg>time { margin-right: 1em; }
+
+    .connecting { border-color: 3px dashed blue; }
+    .connected { border-color: 1px dotted green; }
   </style>
 
   <script crossorigin='anonymous' src='https://cdn.jsdelivr.net/npm/superfine@7.0.0/dist/superfine.min.js'></script>
@@ -20,9 +23,16 @@
 <body>
   <main>
     <h1>Datagram Notify Rollup Plugin</h1>
-    <button id='enable_speech'>
-      Enable Speech Notifications
-    </button>
+    <div>
+      <button id='enable_speech'>
+        Enable Speech Notifications
+      </button>
+      <div>
+        <label>Datagram Relay Host</label>
+        <input name='dg_relay_host' value='http://127.0.0.1:8098' />
+        <select id='dg_relay_host_select'></select>
+      </div>
+    </div>
 
     <section id='app'>
     </section>
@@ -79,10 +89,37 @@
       const dg_relay_info = new Map()
       refresh_info(dg_relay_info)
 
-      for (const es_host of ['http://127.0.0.1:8098']) {
-        const es = new EventSource(`${es_host}/dg_relay?8099`)
-        es.onmessage = on_dg_msg
+      const el_dg_relay_host = document.querySelector('[name=dg_relay_host]')
+      {
+        const {hostname} = window.location
+        const ip_hostname = hostname.split('.').map(v => parseInt(v)).slice(0,4).join('.')
+        if (ip_hostname == hostname)
+          el_dg_relay_host.value = `http://${ip_hostname}:8098`
       }
+
+
+      let es=null
+      function update_event_source() {
+        if (es) { es.close(); es = null }
+        console.log('el_dg_relay_host:', el_dg_relay_host.value)
+
+        el_dg_relay_host.className = 'connecting'
+        const dg_relay_host = el_dg_relay_host.value
+        es = new EventSource(`${dg_relay_host}/dg_relay?8099`)
+        es.onmessage = on_dg_msg
+        es.onopen = function() {
+          el_dg_relay_host.className = 'connected'
+          let cur = JSON.parse(localStorage.getItem('dg_relay_hosts') || '[]')
+          const idx = cur.indexOf(dg_relay_host)
+          if (-1 !== idx) cur[idx] = null
+          cur.unshift(dg_relay_host)
+          cur = cur.filter(Boolean)
+          console.log({cur})
+          localStorage.setItem('dg_relay_hosts', JSON.stringify(cur))
+        }
+      }
+      el_dg_relay_host.addEventListener('change', update_event_source)
+      Promise.resolve().then(update_event_source)
 
       function on_dg_msg(evt) {
         const msg = JSON.parse(evt.data)
@@ -104,8 +141,6 @@
     const {h} = superfine
     const bind_render_on = node => view => node = superfine.patch(node, view)
     const render_app = bind_render_on(document.getElementById('app'))
-
-    //render_app(h('h1', {}, 'Hello from JSY and Parcel!'))
 
     function refresh_app(dg_relay_info) {
       const parts = []
