@@ -31,7 +31,7 @@
   },
   "scripts": {
     "start": "node ./dgn_relay.cjs",
-    "dbg_start": "qsrv -p 8098 --dg 8099",
+    "dbg_start": "qsrv -p 8098 --dg 8099 -- index.html",
     "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
