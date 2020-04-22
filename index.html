@@ -8,21 +8,34 @@
   <link rel='icon' href='data:image/png;base64,' />
   <link rel='stylesheet' crossorigin='anonymous' href='https://cdn.jsdelivr.net/npm/picnic@6.5.1/picnic.min.css' />
   <style>
-    body { margin: 2em 2em; }
+    nav { position: relative; }
+    main { margin: 2em 2em; }
     .dg_good { color: green; }
     .dg_error { color: red; }
     .dg>time { margin-right: 1em; }
 
-    #dg_relay_host { display: inline-block; width: 15em; }
-    .connecting { background-color: #ccf8; }
-    .connected { background-color: #cfc8; }
+    #dg_relay_host { display: inline-block; width: 18em; }
+    .connecting {
+      background-color: #88f8;
+      transition-property: background-color;
+      transition-duration: 0s;
+    }
+    .connected {
+      background-color: #afa6;
+      transition-property: background-color;
+      transition-duration: 0.5s;
+    }
+    .errored {
+      background-color: #faa8;
+      transition-property: background-color;
+      transition-duration: 0.5s;
+    }
   </style>
 
   <script crossorigin='anonymous' src='https://cdn.jsdelivr.net/npm/superfine@7.0.0/dist/superfine.min.js'></script>
 </head>
 
 <body>
-  <nav class='demo'>
   <nav>
     <a href="#" class="brand">
       <span>Datagram Notify Rollup Plugin</span>
@@ -100,10 +113,14 @@
       const el_dg_relay_host = document.getElementById('dg_relay_host')
       if (1) {
         const {hostname} = window.location
-        const ip_hostname = hostname.split('.').map(v => parseInt(v)).slice(0,4).join('.')
-        el_dg_relay_host.value = (ip_hostname == hostname)
-          ? `http://${ip_hostname}:8098`
+        el_dg_relay_host.value = is_ip_hostname(hostname)
+          ? `http://${hostname}:8098`
           : `http://127.0.0.1:8098`
+      }
+
+      function is_ip_hostname(hostname) {
+        const ip_hostname = hostname.split('.').map(v => parseInt(v)).slice(0,4).join('.')
+        return (ip_hostname == hostname)
       }
 
       const render_dg_hosts = bind_render_on(document.getElementById('dg_relay_host_list'))
@@ -116,16 +133,29 @@
       Promise.resolve().then(update_dg_relay_options)
 
 
+      function dg_relay_url(dg_relay_host) {
+        try { return new URL(dg_relay_host) }
+        catch (err) {
+          try { return new URL(`http://${dg_relay_host}`) }
+          catch (e2) {}
+
+          console.warn(err)
+          throw err
+        }
+      }
+
       let es=null
       async function update_event_source() {
         if (es) { es.close(); es = null }
-        const {value: dg_relay_host} = el_dg_relay_host
+        let {value: dg_relay_host} = el_dg_relay_host
         if (!dg_relay_host) return
 
-        console.log('Connecting to:', dg_relay_host)
-        el_dg_relay_host.className = 'connecting'
+        const dg_url = dg_relay_url(dg_relay_host)
+        if (!dg_url.port) dg_url.port = 8098
+        dg_relay_host = dg_url.origin
 
-        await new Promise(y => setTimeout(y, 1000))
+        console.log(`Connecting to: ${dg_url}`)
+        el_dg_relay_host.className = 'connecting'
 
         es = new EventSource(`${dg_relay_host}/dg_relay?8099`)
         es.onmessage = on_dg_msg
@@ -138,6 +168,9 @@
           cur = cur.filter(Boolean)
           localStorage.setItem('dg_relay_hosts', JSON.stringify(cur))
           Promise.resolve().then(update_dg_relay_options)
+        }
+        es.onerror = function(e) {
+          el_dg_relay_host.className = 'errored'
         }
       }
       el_dg_relay_host.addEventListener('change', update_event_source)
