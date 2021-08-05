@@ -1,4 +1,3 @@
-import rpi_jsy from 'rollup-plugin-jsy'
 import rpi_dgnotify from './esm/index.mjs'
 
 export default {

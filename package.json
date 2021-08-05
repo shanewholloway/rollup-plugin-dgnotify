@@ -23,11 +23,10 @@
   "module": "esm/index.mjs",
   "dependencies": {},
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^7.1.3",
+    "@rollup/plugin-node-resolve": "^13.0.4",
     "qsdg": "0.1.7",
     "qsrv": "^0.1.7",
-    "rollup": "^2.10.2",
-    "rollup-plugin-jsy": "^1.7.1"
+    "rollup": "^2.56.0"
   },
   "scripts": {
     "start": "node ./dgn_relay.cjs",
