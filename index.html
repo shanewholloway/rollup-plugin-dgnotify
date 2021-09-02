@@ -88,14 +88,30 @@
       }
     }
 
+    let recent_msgs = [new Set()]
+    setInterval(function(count) {
+        recent_msgs.unshift(new Set())
+        recent_msgs.splice(count, Infinity)
+      }, 2000, 5)
+
     window.sayit = async function sayit(msg, force) {
       if (!force && speechSynthesis.speaking)
         return console.log('(already speaking):', msg)
+
+      for (let cache of recent_msgs) {
+        if (cache.has(msg)) {
+          recent_msgs[0].add(msg)
+          return console.log('(recently said [%o]): %o',
+            recent_msgs.indexOf(cache), msg)
+        }
+      }
 
       if (undefined === voice)
         await init_voices()
 
       console.log('(say):', msg)
+      recent_msgs[0].add(msg)
+
       const utter = new SpeechSynthesisUtterance(msg)
       utter.voice = voice
       speechSynthesis.speak(utter)
