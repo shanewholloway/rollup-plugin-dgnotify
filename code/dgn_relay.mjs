@@ -1,10 +1,14 @@
 import {qsdg_server} from 'qsdg'
 
 export default async function dgn_relay_main() {
-  let dg_listen_addr=process.env.DGNOTIFY || '127.0.0.1'
+  let opt = { port: 8098, dg_relay: [8099] }
+  let dg_listen_addr = process.env.DGNOTIFY
+  if (dg_listen_addr) {
+    opt.dg_listen_addr = dg_listen_addr
+    console.log('Using:', opt)
+  }
 
-  const qsdg = await qsdg_server({ port: 8098,
-    dg_relay: [8099], dg_listen_addr, })
+  await qsdg_server(opt)
 
   console.log(`
     rpi_dgnotify:
